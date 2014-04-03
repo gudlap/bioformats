@@ -2,7 +2,7 @@
  * #%L
  * OME Bio-Formats manual and automated test suite.
  * %%
- * Copyright (C) 2006 - 2013 Open Microscopy Environment:
+ * Copyright (C) 2006 - 2014 Open Microscopy Environment:
  *   - Board of Regents of the University of Wisconsin-Madison
  *   - Glencoe Software, Inc.
  *   - University of Dundee
@@ -25,13 +25,9 @@
 
 package loci.tests.testng;
 
-import java.io.IOException;
-
 import loci.common.DateTools;
-
-import org.apache.log4j.FileAppender;
-import org.apache.log4j.Layout;
-import org.apache.log4j.spi.ErrorCode;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.FileAppender;
 
 /**
  * A class for appending a timestamp to the log file name produced by the
@@ -39,40 +35,14 @@ import org.apache.log4j.spi.ErrorCode;
  *
  * @author Blazej Pindelski <bpindelski at dundee dot ac dot uk>
  */
-public class TimestampedLogFileAppender extends FileAppender {
-
-    public TimestampedLogFileAppender() {
-        
-    }
-    
-    public TimestampedLogFileAppender(Layout layout, String filename,
-                    boolean append, boolean bufferedIO, int bufferSize)
-                    throws IOException {
-        super(layout, filename, append, bufferedIO, bufferSize);
-    }
-
-    public TimestampedLogFileAppender(Layout layout, String filename,
-                    boolean append) throws IOException {
-        super(layout, filename, append);
-    }
-
-    public TimestampedLogFileAppender(Layout layout, String filename)
-                    throws IOException {
-        super(layout, filename);
-    }
+public class TimestampedLogFileAppender extends FileAppender<ILoggingEvent> {
 
     @Override
-    public void activateOptions() {
+    public void start() {
         if (this.fileName != null) {
-            try {
-                this.setFile(this.getNewFileName(), this.fileAppend,
-                        this.bufferedIO, this.bufferSize);
-            } catch (IOException e) {
-                this.errorHandler.error(
-                        "Error while adding timestamp to log file name", e,
-                        ErrorCode.FILE_OPEN_FAILURE);
-            }
+            this.setFile(this.getNewFileName());
         }
+        super.start();
     }
 
     private String getNewFileName() {

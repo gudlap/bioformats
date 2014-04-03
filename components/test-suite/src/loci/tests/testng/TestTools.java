@@ -2,7 +2,7 @@
  * #%L
  * OME Bio-Formats manual and automated test suite.
  * %%
- * Copyright (C) 2006 - 2013 Open Microscopy Environment:
+ * Copyright (C) 2006 - 2014 Open Microscopy Environment:
  *   - Board of Regents of the University of Wisconsin-Madison
  *   - Glencoe Software, Inc.
  *   - University of Dundee
@@ -47,10 +47,6 @@ import loci.common.RandomAccessInputStream;
 import loci.formats.IFormatReader;
 import loci.formats.IFormatWriter;
 import loci.formats.ImageReader;
-
-import org.apache.log4j.Level;
-import org.apache.log4j.PatternLayout;
-import org.apache.log4j.WriterAppender;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -170,17 +166,7 @@ public class TestTools {
 
   /** Creates a new log file. */
   public static void createLogFile() {
-    String timestamp = DateTools.getFileTimestamp();
-    String logFile = "loci-software-test-" + timestamp + ".log";
-    LOGGER.info("Output logged to {}", logFile);
-    try {
-      org.apache.log4j.Logger root = org.apache.log4j.Logger.getRootLogger();
-      root.setLevel(Level.INFO);
-      root.addAppender(new WriterAppender(
-        new PatternLayout("%p [%t] [%d{dd-MM-yyyy HH:mm:ss.SSS}] %m%n"),
-        new PrintWriter(logFile, Constants.ENCODING)));
-    }
-    catch (IOException e) { LOGGER.info("", e); }
+    LOGGER.info("Start test suite");
 
     // close log file on exit
     Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -302,7 +288,7 @@ public class TestTools {
       }
       else if (file.isDirectory()) {
         LOGGER.info("\tdirectory");
-        getFiles(subs[i], files, config, null);
+        getFiles(subs[i], files, config, null, null, configFileSuffix);
       }
       else if (!subs[i].endsWith("readme.txt")) {
         if (typeTester.isThisType(subs[i])) {
