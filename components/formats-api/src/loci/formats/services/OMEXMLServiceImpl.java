@@ -1,6 +1,6 @@
 /*
  * #%L
- * OME Bio-Formats API for reading and writing file formats.
+ * BSD implementations of Bio-Formats readers and writers
  * %%
  * Copyright (C) 2005 - 2014 Open Microscopy Environment:
  *   - Board of Regents of the University of Wisconsin-Madison
@@ -27,10 +27,6 @@
  * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
- * 
- * The views and conclusions contained in the software and documentation are
- * those of the authors and should not be interpreted as representing official
- * policies, either expressed or implied, of any organization.
  * #L%
  */
 
@@ -691,6 +687,11 @@ public class OMEXMLServiceImpl extends AbstractService implements OMEXMLService
     Hashtable<String, Object> metadata)
   {
     omexmlMeta.resolveReferences();
+
+    if (metadata.size() == 0) {
+      return;
+    }
+
     OMEXMLMetadataRoot root = (OMEXMLMetadataRoot) omexmlMeta.getRoot();
     StructuredAnnotations annotations = root.getStructuredAnnotations();
     if (annotations == null) annotations = new StructuredAnnotations();
@@ -859,6 +860,13 @@ public class OMEXMLServiceImpl extends AbstractService implements OMEXMLService
   public void addModuloAlong(OMEXMLMetadata meta, CoreMetadata core, int imageIdx)
   {
     meta.resolveReferences();
+
+    if (core.moduloZ.length() == 1 && core.moduloC.length() == 1 &&
+      core.moduloT.length() == 1)
+    {
+      // nothing to populate
+      return;
+    }
 
     OMEXMLMetadataRoot root = (OMEXMLMetadataRoot) meta.getRoot();
     Image image;

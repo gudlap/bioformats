@@ -34,6 +34,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import loci.common.Constants;
 import loci.common.DateTools;
 import loci.common.RandomAccessInputStream;
 import loci.formats.CoreMetadata;
@@ -45,7 +46,6 @@ import loci.formats.tiff.IFD;
 import loci.formats.tiff.PhotoInterp;
 import loci.formats.tiff.TiffIFDEntry;
 import loci.formats.tiff.TiffParser;
-import ome.scifio.common.Constants;
 import ome.xml.model.primitives.PositiveFloat;
 import ome.xml.model.primitives.PositiveInteger;
 import ome.xml.model.primitives.Timestamp;
@@ -76,8 +76,8 @@ public class SVSReader extends BaseTiffReader {
   private String[] comments;
   private int[] ifdmap;
 
-  private double emissionWavelength, excitationWavelength;
-  private double exposureTime, exposureScale;
+  private Double emissionWavelength, excitationWavelength;
+  private Double exposureTime, exposureScale;
   private String date, time;
   private double[] magnification;
 
@@ -199,6 +199,14 @@ public class SVSReader extends BaseTiffReader {
       pixelSize = null;
       comments = null;
       ifdmap = null;
+
+      emissionWavelength = null;
+      excitationWavelength = null;
+      exposureTime = null;
+      exposureScale = null;
+      magnification = null;
+      date = null;
+      time = null;
     }
   }
 
@@ -283,16 +291,16 @@ public class SVSReader extends BaseTiffReader {
                 time = value;
               }
               else if (key.equals("Emission Wavelength")) {
-                emissionWavelength = Double.parseDouble(value);
+                emissionWavelength = new Double(value);
               }
               else if (key.equals("Excitation Wavelength")) {
-                excitationWavelength = Double.parseDouble(value);
+                excitationWavelength = new Double(value);
               }
               else if (key.equals("Exposure Time")) {
-                exposureTime = Double.parseDouble(value);
+                exposureTime = new Double(value);
               }
               else if (key.equals("Exposure Scale")) {
-                exposureScale = Double.parseDouble(value);
+                exposureScale = new Double(value);
               }
               else if (key.equals("AppMag")) {
                 magnification[i] = Double.parseDouble(value);
@@ -349,11 +357,13 @@ public class SVSReader extends BaseTiffReader {
 
     MetadataStore store = makeFilterMetadata();
 
-    store.setInstrumentID(MetadataTools.createLSID("Instrument", 0), 0);
+    String instrument = MetadataTools.createLSID("Instrument", 0);
+    store.setInstrumentID(instrument, 0);
 
     int nextObjective = 0;
     for (int i=0; i<getSeriesCount(); i++) {
       setSeries(i);
+      store.setImageInstrumentRef(instrument, i);
 
       Double mag = getMagnification(i);
       if (mag != null && mag > Constants.EPSILON) {
@@ -438,15 +448,15 @@ public class SVSReader extends BaseTiffReader {
   }
 
   protected PositiveInteger getEmission() {
-    if ((int) emissionWavelength > 0) {
-      return new PositiveInteger((int) emissionWavelength);
+    if (emissionWavelength != null && emissionWavelength.intValue() > 0) {
+      return new PositiveInteger(emissionWavelength.intValue());
     }
     return null;
   }
 
   protected PositiveInteger getExcitation() {
-    if ((int) excitationWavelength > 0) {
-      return new PositiveInteger((int) excitationWavelength);
+    if (excitationWavelength != null && excitationWavelength.intValue() > 0) {
+      return new PositiveInteger(excitationWavelength.intValue());
     }
     return null;
   }
